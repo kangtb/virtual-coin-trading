@@ -11,7 +11,7 @@
     <artifactId>trading</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>binance-java-api</module>
+        <module>binance-connector-java</module>
     </modules>
     <version>1.0.0-SNAPSHOT</version>
     <description>自动化交易</description>

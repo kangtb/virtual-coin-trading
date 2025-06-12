@@ -2,7 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <excludeFromCompile>
-      <directory url="file://$PROJECT_DIR$/binance-java-api/src/main/resources/archetype-resources" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/binance-connector-java/src/main/resources/archetype-resources" includeSubdirectories="true" />
     </excludeFromCompile>
     <annotationProcessing>
       <profile name="Annotation profile for trading" enabled="true">
@@ -14,13 +14,13 @@
           <entry name="$PROJECT_DIR$/../../tool/maven/repo/org/mapstruct/mapstruct-processor/1.5.3.Final/mapstruct-processor-1.5.3.Final.jar" />
           <entry name="$PROJECT_DIR$/../../tool/maven/repo/org/mapstruct/mapstruct/1.5.3.Final/mapstruct-1.5.3.Final.jar" />
         </processorPath>
-        <module name="binance-java-api" />
+        <module name="binance-connector-java" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="binance-java-api" options="-parameters" />
+      <module name="binance-connector-java" options="-parameters" />
       <module name="trading" options="-parameters" />
     </option>
   </component>
