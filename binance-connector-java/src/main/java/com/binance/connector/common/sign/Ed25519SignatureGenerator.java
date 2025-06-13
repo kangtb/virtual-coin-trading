@@ -1,13 +1,25 @@
 package com.binance.connector.common.sign;
 
+import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.Signer;
+import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import java.security.*;
 import java.util.Base64;
 
+@Slf4j
 public class Ed25519SignatureGenerator implements SignatureGenerator {
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     private static volatile Ed25519SignatureGenerator instance;
 
@@ -30,13 +42,13 @@ public class Ed25519SignatureGenerator implements SignatureGenerator {
 
     @Override
     public byte[] sign(String input, String apiSecret) throws CryptoException {
+        log.info("plaintext:[{}]", input);
         return sign(input.getBytes(), apiSecret);
     }
 
     @Override
     public byte[] sign(byte[] input, String apiSecret) throws CryptoException {
         try {
-            // 解码 API Secret（假设为 Base64 编码的 Ed25519 私钥）
             byte[] privateKeyBytes = Base64.getDecoder().decode(apiSecret);
             Ed25519PrivateKeyParameters privateKey = new Ed25519PrivateKeyParameters(privateKeyBytes, 0);
 
@@ -62,5 +74,37 @@ public class Ed25519SignatureGenerator implements SignatureGenerator {
     public String signAsString(byte[] input, String apiSecret) throws CryptoException {
         byte[] signature = sign(input, apiSecret);
         return Base64.getEncoder().encodeToString(signature);
+    }
+
+
+
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        // 初始化 Ed25519 密钥对生成器
+        Ed25519KeyPairGenerator keyGen = new Ed25519KeyPairGenerator();
+        keyGen.init(new KeyGenerationParameters(new SecureRandom(), 256)); // Ed25519 使用 256 位
+
+        // 生成密钥对
+        AsymmetricCipherKeyPair keyPair = keyGen.generateKeyPair();
+        Ed25519PrivateKeyParameters privateKey = (Ed25519PrivateKeyParameters) keyPair.getPrivate();
+        Ed25519PublicKeyParameters publicKey = (Ed25519PublicKeyParameters) keyPair.getPublic();
+
+        // 转换为 Base64
+        String privateKeyBase64 = Base64.getEncoder().encodeToString(privateKey.getEncoded());
+        String publicKeyBase64 = Base64.getEncoder().encodeToString(publicKey.getEncoded());
+
+        System.out.println("privateKey:" + privateKeyBase64);
+        System.out.println(toPemPublicKey(publicKeyBase64));
+    }
+
+
+    public static String toPemPublicKey(String publicKeyBase64) {
+        String header = "-----BEGIN PUBLIC KEY-----\n";
+        String footer = "\n-----END PUBLIC KEY-----";
+        String rawKey = publicKeyBase64.replaceAll("\n", "");
+        StringBuilder formatted = new StringBuilder();
+        for (int i = 0; i < rawKey.length(); i += 64) {
+            formatted.append(rawKey, i, Math.min(i + 64, rawKey.length())).append("\n");
+        }
+        return header + formatted + footer;
     }
 }

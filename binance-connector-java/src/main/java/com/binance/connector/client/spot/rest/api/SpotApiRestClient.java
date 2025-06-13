@@ -41,6 +41,7 @@ public class SpotApiRestClient extends ApiClient {
      * @return                  账户信息
      */
     GetAccountResponse getAccount(Boolean omitZeroBalances, Long recvWindow) {
+        recvWindow = recvWindow == null ? 10000 : recvWindow;
         Call<GetAccountResponse> account = accountApi.getAccount(omitZeroBalances, recvWindow, getApiKey());
         return execute(account);
     }

@@ -4,6 +4,7 @@ import com.binance.connector.common.constant.BinanceApiConstant;
 import com.binance.connector.common.security.SecretProvider;
 import com.binance.connector.common.sign.SignRequired;
 import com.binance.connector.common.sign.SignatureGenerator;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -12,11 +13,15 @@ import org.bouncycastle.crypto.CryptoException;
 import retrofit2.Invocation;
 
 import java.io.IOException;
+import java.util.Base64;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 拦截接口签名
  */
+@Slf4j
 public class AuthenticationInterceptor implements Interceptor {
 
     private static volatile AuthenticationInterceptor instance;
@@ -46,31 +51,71 @@ public class AuthenticationInterceptor implements Interceptor {
     @SuppressWarnings("all")
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        Request.Builder newRequestBuilder = request.newBuilder();
-        HttpUrl.Builder urlBuilder = request.url().newBuilder();
-
-        // 添加公共参数时间戳
-        String payload = request.url().query();
-        if(payload != null && !payload.isEmpty()) {
-            urlBuilder.addQueryParameter("timestamp", System.currentTimeMillis() + "");
-        }
-        // 添加签名
         if (isSignatureRequired(request)) {
-            if (payload != null && !payload.isEmpty()) {
-                String apikey = request.header(BinanceApiConstant.API_KEY_HEADER);
-                String signature = null;
-                try {
-                    signature = signatureGenerator.signAsString(payload, SecretProvider.getSecret(apikey));
-                } catch (CryptoException e) {
-                    throw new RuntimeException(e);
-                }
-                HttpUrl signedUrl = urlBuilder.addQueryParameter("signature", signature).build();
-                newRequestBuilder.url(signedUrl);
+            // 添加公共参数和签名
+            request = appendSignatureCommonParams(request);
+        }
+        return chain.proceed(request);
+    }
+
+    /**
+     * 封装添加公共参数和签名
+     * @param request   请求
+     * @return          新的请求
+     * @throws IOException  io异常
+     */
+    private Request appendSignatureCommonParams(Request request) throws IOException {
+        String apiKey = request.header(BinanceApiConstant.API_KEY_HEADER);
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IOException("Apikey is missing");
+        }
+
+        // 提取查询参数
+        TreeMap<String, String> queryParams = new TreeMap<>();
+        for (String name : request.url().queryParameterNames()) {
+            String value = request.url().queryParameter(name);
+            if (value != null) {
+                queryParams.put(name, value);
             }
         }
-        // Build new request after adding the necessary authentication information
-        Request newRequest = newRequestBuilder.build();
-        return chain.proceed(newRequest);
+        // 添加公共参数
+        long timestamp = System.currentTimeMillis();
+        queryParams.put("timestamp", String.valueOf(timestamp));
+        if(queryParams.containsKey("recvWindow")){
+            queryParams.put("recvWindow", String.valueOf(5000));
+        }
+
+        // 构造签名铭文
+        StringBuilder payload = new StringBuilder();
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            if (payload.length() > 0) {
+                payload.append("&");
+            }
+            payload.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+        // 生成签名
+        String signature;
+        try {
+            String apiSecret = SecretProvider.getSecret(apiKey);
+            if (apiSecret == null) {
+                throw new IOException("API Secret not found for key: " + apiKey);
+            }
+            signature = signatureGenerator.signAsString(payload.toString(), apiSecret);
+        } catch (CryptoException e) {
+            log.error("Failed to generate signature for payload: {}", payload, e);
+            throw new IOException("Signature generation failed", e);
+        }
+
+        // 更新 URL
+        HttpUrl.Builder urlBuilder = request.url().newBuilder();
+        for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+            urlBuilder.setQueryParameter(entry.getKey(), entry.getValue());
+        }
+        urlBuilder.addQueryParameter("signature", signature);
+        // 构建新 Request
+        return request.newBuilder()
+                .url(urlBuilder.build())
+                .build();
     }
 
     /**
@@ -89,6 +134,10 @@ public class AuthenticationInterceptor implements Interceptor {
         String methodKey = invocation.method().toString();
         return signatureRequiredCache.computeIfAbsent(methodKey, key ->
                 invocation.method().isAnnotationPresent(SignRequired.class));
+    }
+
+    public static void main(String[] args) {
+        System.out.println(Base64.getEncoder().encodeToString("MCowBQYDK2VwAyEAGjF4p66VTr8vKSrIRsmrFtusX9AAu0T3e2T599CjqUs=".getBytes()));
     }
 
 }

@@ -25,7 +25,7 @@ public class HttpLogInterceptor implements Interceptor {
         long start = System.currentTimeMillis();
         Response response = chain.proceed(request);
         long time = System.currentTimeMillis() - start;
-        log.info("OkHttp invoke url[{}], status[{}], time[{}]ms", request.url(), response.code(), time);
+        log.info("OkHttp invoke url[{}], header[{}] status[{}], time[{}]ms", request.url(), request.headers().toString(), response.code(), time);
         return response;
     }
 }

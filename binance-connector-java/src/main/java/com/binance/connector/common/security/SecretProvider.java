@@ -7,6 +7,11 @@ public class SecretProvider {
 
     private static final ConcurrentHashMap<String, String> API_SECRET_CACHE = new ConcurrentHashMap<>();
 
+    static {
+        addSecret("WKP7oOXkG2DCzmz57GtzUbXoSS1L3nVNxtdwvQDliLhq6zzS8O18yTNBdhXBQ30Z", "MC4CAQAwBQYDK2VwBCIEIILIn/Ys4x85c1vAUgFZNa6OXKKdkzLoBt8gw3k2yk6E");
+        addSecret("ABrKGus7iKl2EM5SV8QtfTACRafKNErrNPmPVrAHmipTH0YKvMuNydGojZTOR3UD", "MC4CAQAwBQYDK2VwBCIEIB5RkLPPaY25NPHceQnlX8RjK6xlt6yHZo5EpbEPAYc1");
+    }
+
     /**
      * 获取密钥
      *
@@ -23,6 +28,7 @@ public class SecretProvider {
     public static void addSecret(String apikey, String secret) {
         API_SECRET_CACHE.put(apikey, secret);
     }
+
 
 
 }

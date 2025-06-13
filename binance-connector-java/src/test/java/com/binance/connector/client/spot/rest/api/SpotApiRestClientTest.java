@@ -8,7 +8,7 @@ public class SpotApiRestClientTest {
     @Test
     public void getAccountTest() {
 
-        SpotApiRestClient spotApiRestClient = new SpotApiRestClient("123355", true);
+        SpotApiRestClient spotApiRestClient = new SpotApiRestClient("ABrKGus7iKl2EM5SV8QtfTACRafKNErrNPmPVrAHmipTH0YKvMuNydGojZTOR3UD", true);
         GetAccountResponse account = spotApiRestClient.getAccount(true, null);
         System.out.println(account.toString());
     }

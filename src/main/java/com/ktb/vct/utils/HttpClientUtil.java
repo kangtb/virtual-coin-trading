@@ -123,14 +123,14 @@ public class HttpClientUtil {
             Request request = chain.request();
             // 包装request后，获取请求头
             // 异步一定要包装，同步请求自然会有；异步请求拦截器执行在前，无traceId
-            String traceIdHeader = request.header(TRACE_ID_HEADER);
-            if (traceIdHeader != null && !traceIdHeader.isEmpty()) {
-                TraceIdUtil.setLogTraceId(traceIdHeader);
-            }
+//            String traceIdHeader = request.header(TRACE_ID_HEADER);
+//            if (traceIdHeader != null && !traceIdHeader.isEmpty()) {
+//                TraceIdUtil.setLogTraceId(traceIdHeader);
+//            }
             long start = System.currentTimeMillis();
             Response response = chain.proceed(request);
             long time = System.currentTimeMillis() - start;
-            log.info("OkHttp invoke url[{}], status[{}], time[{}]ms", request.url(), response.code(), time);
+            log.info("OkHttp invoke url[{}], header:[{}] status[{}], time[{}]ms", request.url(), request.headers().toString(), response.code(), time);
             return response;
         }
     }
