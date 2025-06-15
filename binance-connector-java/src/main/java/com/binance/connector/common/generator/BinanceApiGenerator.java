@@ -12,6 +12,8 @@ import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 public class BinanceApiGenerator implements ApiGenerator {
 
     private static volatile BinanceApiGenerator instance;
+    private final OkHttpClient sharedClient;
+    private final Converter.Factory converterFactory = JacksonConverterFactory.create();
 
     private BinanceApiGenerator() {
 
@@ -39,29 +43,40 @@ public class BinanceApiGenerator implements ApiGenerator {
         return instance;
     }
 
-    private final OkHttpClient sharedClient;
-    private final Converter.Factory converterFactory = JacksonConverterFactory.create();
-
     {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequestsPerHost(500);
         dispatcher.setMaxRequests(500);
-        sharedClient = new OkHttpClient.Builder().dispatcher(dispatcher).pingInterval(20, TimeUnit.SECONDS).build();
-    }
 
-    @Override
-    public <T> T createApi(Class<T> apiClass, Boolean isTestnet) {
-        Retrofit.Builder retrofitBuilder = new Retrofit.Builder().baseUrl(isTestnet ? BinanceApiConstant.TESTNET_URL :BinanceApiConstant.BASE_URL)
-                .addConverterFactory(converterFactory);
         // 采用 ed25519签名
         SignatureGenerator signatureGenerator = Ed25519SignatureGenerator.getInstance();
         Interceptor authInterceptor = AuthenticationInterceptor.getInstance(signatureGenerator);
         // 添加日志打印
         HttpLogInterceptor httpLogInterceptor = new HttpLogInterceptor();
         // 添加日志拦截器
-        OkHttpClient adaptedClient = sharedClient.newBuilder().addInterceptor(authInterceptor).addInterceptor(httpLogInterceptor).build();
-        retrofitBuilder.client(adaptedClient);
-        Retrofit retrofit = retrofitBuilder.build();
+        sharedClient = new OkHttpClient.Builder()
+                .dispatcher(dispatcher)
+                .addInterceptor(authInterceptor)
+                .addInterceptor(httpLogInterceptor)
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(5, TimeUnit.SECONDS)
+                .pingInterval(20, TimeUnit.SECONDS).build();
+    }
+
+    @Override
+    public <T> T createApi(Class<T> apiClass, Boolean isTestnet) {
+        if (apiClass == null) {
+            throw new IllegalArgumentException("API class cannot be null");
+        }
+
+        String baseUrl = isTestnet ? BinanceApiConstant.TESTNET_URL : BinanceApiConstant.BASE_URL;
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(converterFactory)
+                .client(sharedClient)
+                .build();
         return retrofit.create(apiClass);
+
     }
 }

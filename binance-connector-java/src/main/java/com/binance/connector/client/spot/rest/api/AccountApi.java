@@ -14,18 +14,17 @@ public interface AccountApi {
 
     @GET("/api/v3/account")
     @SignRequired
-    Call<GetAccountResponse> getAccount(@Query("omitZeroBalances") Boolean omitZeroBalances,
+    Call<GetAccountResponse> getAccountCall(@Query("omitZeroBalances") Boolean omitZeroBalances,
                                         @Query("recvWindow") Long recvWindow,
                                         @Header(BinanceApiConstant.API_KEY_HEADER) String apikey);
 
 
     @GET("/api/v3/order")
-    Call<GetOrderResponse> getOrder(@Query("symbol") String symbol,
+    Call<GetOrderResponse> getOrderCall(@Query("symbol") String symbol,
                                     @Query("orderId") Long orderId,
                                     @Query("origClientOrderId") String origClientOrderId,
                                     @Query("recvWindow") Long recvWindow,
                                     @Header(BinanceApiConstant.API_KEY_HEADER) String apikey);
-
 
 
 

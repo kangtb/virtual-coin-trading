@@ -9,6 +9,11 @@
     <remote-repository>
       <option name="id" value="rdc-releases" />
       <option name="name" value="rdc-releases" />
+      <option name="url" value="https://repo.rdc.aliyun.com/repository/69831-release-4lGy2w/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="rdc-releases" />
+      <option name="name" value="rdc-releases" />
       <option name="url" value="http://mirrors.cloud.tencent.com/nexus/repository/maven-public/" />
     </remote-repository>
     <remote-repository>
@@ -40,6 +45,11 @@
       <option name="id" value="snapshots" />
       <option name="name" value="snapshots" />
       <option name="url" value="https://maven.aliyun.com/nexus/content/groups/public" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="rdc-snapshots" />
+      <option name="name" value="rdc-snapshots" />
+      <option name="url" value="https://repo.rdc.aliyun.com/repository/69831-snapshot-Ar5zMJ/" />
     </remote-repository>
   </component>
 </project>

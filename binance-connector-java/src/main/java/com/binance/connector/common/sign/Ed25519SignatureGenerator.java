@@ -1,14 +1,17 @@
 package com.binance.connector.common.sign;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.CryptoException;
 import org.bouncycastle.crypto.KeyGenerationParameters;
 import org.bouncycastle.crypto.Signer;
 import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.*;
@@ -49,10 +52,14 @@ public class Ed25519SignatureGenerator implements SignatureGenerator {
     @Override
     public byte[] sign(byte[] input, String apiSecret) throws CryptoException {
         try {
+            // Base64解码私钥
             byte[] privateKeyBytes = Base64.getDecoder().decode(apiSecret);
-            Ed25519PrivateKeyParameters privateKey = new Ed25519PrivateKeyParameters(privateKeyBytes, 0);
+            // 解析PKCS8格式私钥
+            PrivateKeyInfo privateKeyInfo = PrivateKeyInfo.getInstance(privateKeyBytes);
+            // 提取ED25519私钥参数
+            AsymmetricKeyParameter privateKey = PrivateKeyFactory.createKey(privateKeyInfo);
 
-            // 创建 Ed25519 签名器
+            // 创建Ed25519签名器
             Signer signer = new Ed25519Signer();
             signer.init(true, privateKey);
             signer.update(input, 0, input.length);

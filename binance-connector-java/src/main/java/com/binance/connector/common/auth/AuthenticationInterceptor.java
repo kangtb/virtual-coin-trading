@@ -53,7 +53,7 @@ public class AuthenticationInterceptor implements Interceptor {
         Request request = chain.request();
         if (isSignatureRequired(request)) {
             // 添加公共参数和签名
-            request = appendSignatureCommonParams(request);
+            request = joinSignatureCommonParams(request);
         }
         return chain.proceed(request);
     }
@@ -64,7 +64,7 @@ public class AuthenticationInterceptor implements Interceptor {
      * @return          新的请求
      * @throws IOException  io异常
      */
-    private Request appendSignatureCommonParams(Request request) throws IOException {
+    private Request joinSignatureCommonParams(Request request) throws IOException {
         String apiKey = request.header(BinanceApiConstant.API_KEY_HEADER);
         if (apiKey == null || apiKey.isEmpty()) {
             throw new IOException("Apikey is missing");
@@ -82,7 +82,7 @@ public class AuthenticationInterceptor implements Interceptor {
         long timestamp = System.currentTimeMillis();
         queryParams.put("timestamp", String.valueOf(timestamp));
         if(queryParams.containsKey("recvWindow")){
-            queryParams.put("recvWindow", String.valueOf(5000));
+            queryParams.put("recvWindow", String.valueOf(60000));
         }
 
         // 构造签名铭文
@@ -134,10 +134,6 @@ public class AuthenticationInterceptor implements Interceptor {
         String methodKey = invocation.method().toString();
         return signatureRequiredCache.computeIfAbsent(methodKey, key ->
                 invocation.method().isAnnotationPresent(SignRequired.class));
-    }
-
-    public static void main(String[] args) {
-        System.out.println(Base64.getEncoder().encodeToString("MCowBQYDK2VwAyEAGjF4p66VTr8vKSrIRsmrFtusX9AAu0T3e2T599CjqUs=".getBytes()));
     }
 
 }
