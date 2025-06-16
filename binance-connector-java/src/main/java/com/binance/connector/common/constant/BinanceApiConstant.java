@@ -4,7 +4,9 @@ public class BinanceApiConstant {
 
     public static final String BASE_URL = "https://api.binance.com/";
 
-    public static final String TESTNET_URL = "https://testnet.binance.vision/api/";
+    public static final String SPOT_TESTNET_URL = "https://testnet.binance.vision/api/";
+
+    public static final String TESTNET_URL = "https://testnet.binancefuture.com/";
 
     /**
      * HTTP Header to be used for API-KEY authentication.

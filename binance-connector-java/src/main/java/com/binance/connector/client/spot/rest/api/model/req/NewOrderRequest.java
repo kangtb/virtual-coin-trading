@@ -16,23 +16,43 @@ import com.binance.connector.common.enums.*;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /** NewOrderRequest */
 @Data
 @Builder
 public class NewOrderRequest {
 
+    /**
+     * 交易对 必填
+     */
     private String symbol;
 
+    /**
+     * 订单方向 必填
+     */
     private Side side;
 
+    /**
+     * 订单类型 必填
+     */
     private OrderType type;
 
+    /**
+     * 生效时间
+     */
     private TimeInForce timeInForce;
 
+    /**
+     * 交易的数量
+     */
     private Double quantity;
 
     private Double quoteOrderQty;
 
+    /**
+     * 挂单价格
+     */
     private Double price;
 
     private String newClientOrderId;
@@ -51,6 +71,16 @@ public class NewOrderRequest {
 
     private SelfTradePreventionMode selfTradePreventionMode;
 
-    private Long recvWindow;
+    /**
+     * 限制单
+     */
+    public static class newLimitMarketOrderRequest {
+
+        /**
+         * 限价单 价格
+         */
+        private BigDecimal price;
+
+    }
 
 }

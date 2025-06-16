@@ -14,9 +14,7 @@ public class SpotApiRestClientTest {
 
     @Test
     public void getAccountTest() {
-
-        GetAccountResponse account = spotApiRestClient.getAccountCall(true, null);
-        System.out.println(System.currentTimeMillis());
+        GetAccountResponse account = spotApiRestClient.getAccount(true);
         System.out.println(account.toString());
     }
 
@@ -24,7 +22,7 @@ public class SpotApiRestClientTest {
     public void newOrderTest() {
         NewOrderRequest newOrderRequest = NewOrderRequest.builder().newClientOrderId("234555")
                 .side(Side.BUY).build();
-        NewOrderResponse newOrderResponse = spotApiRestClient.newOrderCall(newOrderRequest);
+        NewOrderResponse newOrderResponse = spotApiRestClient.newOrder(newOrderRequest);
         System.out.println(newOrderResponse.toString());
     }
 

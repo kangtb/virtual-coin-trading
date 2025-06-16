@@ -9,6 +9,25 @@ public class HmacSignatureGenerator implements SignatureGenerator {
 
     private static final String HMAC_SHA256 = "HmacSHA256";
 
+    private static volatile HmacSignatureGenerator instance;
+
+    private HmacSignatureGenerator() {
+
+    }
+
+    public static HmacSignatureGenerator getInstance() {
+        // 第一次检查
+        if (instance == null) {
+            synchronized (HmacSignatureGenerator.class) {
+                // 第二次检查
+                if (instance == null) {
+                    instance = new HmacSignatureGenerator();
+                }
+            }
+        }
+        return instance;
+    }
+
     @Override
     public byte[] sign(String input, String apiSecret) throws CryptoException {
         return sign(input.getBytes(), apiSecret);

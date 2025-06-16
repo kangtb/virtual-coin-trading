@@ -7,7 +7,7 @@ import retrofit2.http.QueryMap;
 
 import java.util.Map;
 
-public interface MarketApi {
+public interface MarketDataApi {
 
     @GET("/api/v3/depth")
     Call<DepthResponse> getDepthCall(@QueryMap Map<String, Object> map);

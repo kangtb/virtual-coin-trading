@@ -25,7 +25,7 @@ public class SpotApiRestClient extends ApiClient {
     /**
      * 市场api
      */
-    MarketApi marketApi;
+    MarketDataApi marketDataApi;
 
     /**
      * 交易api
@@ -37,20 +37,18 @@ public class SpotApiRestClient extends ApiClient {
         super(apiKey, isTestnet);
         // 生成 api
         accountApi = BinanceApiGenerator.getInstance().createApi(AccountApi.class, isTestnet);
-        marketApi = BinanceApiGenerator.getInstance().createApi(MarketApi.class, isTestnet);
+        marketDataApi = BinanceApiGenerator.getInstance().createApi(MarketDataApi.class, isTestnet);
         tradeApi = BinanceApiGenerator.getInstance().createApi(TradeApi.class, isTestnet);
     }
 
     /**
      * 获取账户信息
      *
-     * @param omitZeroBalances 小额余额是否显示
-     * @param recvWindow       接收的时间窗口
+     * @param omitZeroBalances     是否隐藏小额资产
      * @return 账户信息
      */
-    GetAccountResponse getAccountCall(Boolean omitZeroBalances, Long recvWindow) {
-        recvWindow = recvWindow == null ? 10000 : recvWindow;
-        Call<GetAccountResponse> accountCall = accountApi.getAccountCall(omitZeroBalances, recvWindow, getApiKey());
+    GetAccountResponse getAccount(Boolean omitZeroBalances) {
+        Call<GetAccountResponse> accountCall = accountApi.getAccountCall(omitZeroBalances, getApiKey());
         return execute(accountCall);
     }
 
@@ -60,7 +58,7 @@ public class SpotApiRestClient extends ApiClient {
      * @param newOrderRequest 订单参数
      * @return resp
      */
-    NewOrderResponse newOrderCall(NewOrderRequest newOrderRequest) {
+    NewOrderResponse newOrder(NewOrderRequest newOrderRequest) {
         Call<NewOrderResponse> newOrderResponseCall = tradeApi.newOrderCall(JacksonUtils.convertToMap(newOrderRequest), getApiKey());
         return execute(newOrderResponseCall);
     }
@@ -71,7 +69,7 @@ public class SpotApiRestClient extends ApiClient {
      * @param cancelOrderRequest 撤单参数
      * @return 撤单信息
      */
-    CancelOrderResponse cancelOrderCall(CancelOrderRequest cancelOrderRequest) {
+    CancelOrderResponse cancelOrder(CancelOrderRequest cancelOrderRequest) {
         Call<CancelOrderResponse> cancelOrderResponseCall = tradeApi.cancelOrderCall(JacksonUtils.convertToMap(cancelOrderRequest), getApiKey());
         return execute(cancelOrderResponseCall);
     }
@@ -83,7 +81,7 @@ public class SpotApiRestClient extends ApiClient {
      * @return 深度信息
      */
     DepthResponse getDepth(DepthRequest depthRequest) {
-        Call<DepthResponse> depthCall = marketApi.getDepthCall(JacksonUtils.convertToMap(depthRequest));
+        Call<DepthResponse> depthCall = marketDataApi.getDepthCall(JacksonUtils.convertToMap(depthRequest));
         return execute(depthCall);
     }
 

@@ -47,17 +47,11 @@ public class BinanceApiGenerator implements ApiGenerator {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequestsPerHost(500);
         dispatcher.setMaxRequests(500);
-
-        // 采用 ed25519签名
-        SignatureGenerator signatureGenerator = Ed25519SignatureGenerator.getInstance();
-        Interceptor authInterceptor = AuthenticationInterceptor.getInstance(signatureGenerator);
-        // 添加日志打印
-        HttpLogInterceptor httpLogInterceptor = new HttpLogInterceptor();
         // 添加日志拦截器
         sharedClient = new OkHttpClient.Builder()
                 .dispatcher(dispatcher)
-                .addInterceptor(authInterceptor)
-                .addInterceptor(httpLogInterceptor)
+                .addInterceptor(new AuthenticationInterceptor())
+                .addInterceptor(new HttpLogInterceptor())
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(5, TimeUnit.SECONDS)

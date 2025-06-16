@@ -9,4 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SignRequired {
 
+    SignatureType value() default SignatureType.Ed25519;
+
 }
