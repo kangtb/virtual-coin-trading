@@ -55,7 +55,7 @@ public class UsdsFuturesApiRestClient extends ApiClient {
      * @return 结果
      */
     public ModifyIsolatedPositionMarginResponse modifyIsolatedPositionMargin(ModifyIsolatedPositionMarginRequest request) {
-        Call<ModifyIsolatedPositionMarginResponse> modifyIsolatedPositionMarginCall = tradeApi.modifyIsolatedPositionMarginCall(JacksonUtils.convertToMap(request), getApiKey());
+        Call<ModifyIsolatedPositionMarginResponse> modifyIsolatedPositionMarginCall = tradeApi.modifyIsolatedPositionMarginCall(JacksonUtils.beanToMapIgnoreNull(request), getApiKey());
         return execute(modifyIsolatedPositionMarginCall);
     }
 
@@ -66,7 +66,7 @@ public class UsdsFuturesApiRestClient extends ApiClient {
      * @return 下单结果
      */
     public NewOrderResponse newOrder(NewOrderRequest request) {
-        Call<NewOrderResponse> newOrderCall = tradeApi.newOrderCall(JacksonUtils.convertToMap(request), getApiKey());
+        Call<NewOrderResponse> newOrderCall = tradeApi.newOrderCall(JacksonUtils.beanToMapIgnoreNull(request), getApiKey());
         return execute(newOrderCall);
     }
 
