@@ -5,9 +5,10 @@ import com.binance.connector.common.auth.AuthenticationInterceptor;
 import com.binance.connector.common.log.HttpLogInterceptor;
 import com.binance.connector.common.sign.Ed25519SignatureGenerator;
 import com.binance.connector.common.sign.SignatureGenerator;
-import okhttp3.Dispatcher;
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
+import okhttp3.*;
+import okio.ByteString;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -71,6 +72,45 @@ public class BinanceApiGenerator implements ApiGenerator {
                 .client(sharedClient)
                 .build();
         return retrofit.create(apiClass);
+
+    }
+
+    public static void main(String[] args) {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url("wss://testnet.binance.vision/ws").build();
+        final WebSocket webSocket = client.newWebSocket(request, new WebSocketListener() {
+            @Override
+            public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+                super.onClosed(webSocket, code, reason);
+            }
+
+            @Override
+            public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+                super.onClosing(webSocket, code, reason);
+            }
+
+            @Override
+            public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
+                t.printStackTrace();
+                super.onFailure(webSocket, t, response);
+            }
+
+            @Override
+            public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+                System.out.println(text);
+                super.onMessage(webSocket, text);
+            }
+
+            @Override
+            public void onMessage(@NotNull WebSocket webSocket, @NotNull ByteString bytes) {
+                super.onMessage(webSocket, bytes);
+            }
+
+            @Override
+            public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
+
+            }
+        });
 
     }
 }

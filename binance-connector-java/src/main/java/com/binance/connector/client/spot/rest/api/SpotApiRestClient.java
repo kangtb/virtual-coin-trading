@@ -59,7 +59,7 @@ public class SpotApiRestClient extends ApiClient {
      * @return resp
      */
     NewOrderResponse newOrder(NewOrderRequest newOrderRequest) {
-        Call<NewOrderResponse> newOrderResponseCall = tradeApi.newOrderCall(JacksonUtils.convertToMap(newOrderRequest), getApiKey());
+        Call<NewOrderResponse> newOrderResponseCall = tradeApi.newOrderCall(JacksonUtils.beanToMap(newOrderRequest), getApiKey());
         return execute(newOrderResponseCall);
     }
 
@@ -70,7 +70,7 @@ public class SpotApiRestClient extends ApiClient {
      * @return 撤单信息
      */
     CancelOrderResponse cancelOrder(CancelOrderRequest cancelOrderRequest) {
-        Call<CancelOrderResponse> cancelOrderResponseCall = tradeApi.cancelOrderCall(JacksonUtils.convertToMap(cancelOrderRequest), getApiKey());
+        Call<CancelOrderResponse> cancelOrderResponseCall = tradeApi.cancelOrderCall(JacksonUtils.beanToMap(cancelOrderRequest), getApiKey());
         return execute(cancelOrderResponseCall);
     }
 
@@ -81,7 +81,7 @@ public class SpotApiRestClient extends ApiClient {
      * @return 深度信息
      */
     DepthResponse getDepth(DepthRequest depthRequest) {
-        Call<DepthResponse> depthCall = marketDataApi.getDepthCall(JacksonUtils.convertToMap(depthRequest));
+        Call<DepthResponse> depthCall = marketDataApi.getDepthCall(JacksonUtils.beanToMap(depthRequest));
         return execute(depthCall);
     }
 
