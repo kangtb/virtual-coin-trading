@@ -75,42 +75,47 @@ public class BinanceApiGenerator implements ApiGenerator {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url("wss://testnet.binance.vision/ws").build();
-        final WebSocket webSocket = client.newWebSocket(request, new WebSocketListener() {
-            @Override
-            public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-                super.onClosed(webSocket, code, reason);
-            }
+        String[] urls = {
+                "wss://stream.testnet.binance.vision/ws",
+                "wss://stream.testnet.binance.vision/ws",
+                "wss://stream.testnet.binance.vision/ws"
+        };
 
-            @Override
-            public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
-                super.onClosing(webSocket, code, reason);
-            }
+        int i = 0;
+        for (String url : urls) {
+            System.out.println("Trying URL: " + url);
+            Request request = new Request.Builder().url(url).build();
 
-            @Override
-            public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
-                t.printStackTrace();
-                super.onFailure(webSocket, t, response);
-            }
+            client.newWebSocket(request, new WebSocketListener() {
+                @Override
+                public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
+                    System.out.println("Connected to " + url + " at " + java.time.LocalDateTime.now());
+                    // 发送订阅请求
+                    String subscribeMessage = "{\"method\": \"SUBSCRIBE\", \"params\": [\"btcusdt@ticker\"], \"id\": 1}";
+                    webSocket.send(subscribeMessage);
+                    System.out.println("Subscribed to btcusdt@ticker");
+                }
 
-            @Override
-            public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
-                System.out.println(text);
-                super.onMessage(webSocket, text);
-            }
+                @Override
+                public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+                    System.out.println("Received from " + url + ": " + text);
+                }
+                @Override
+                public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, @Nullable Response response) {
+                    System.err.println("Failed for " + url + ": " + t.getMessage());
+                    if (response != null) {
+                        System.err.println("Response: " + response);
+                    }
+                    t.printStackTrace();
+                }
+            });
+            i++;
+            Thread.sleep(5000); // 每5秒测试一个URL
+        }
 
-            @Override
-            public void onMessage(@NotNull WebSocket webSocket, @NotNull ByteString bytes) {
-                super.onMessage(webSocket, bytes);
-            }
-
-            @Override
-            public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
-
-            }
-        });
-
+        // 保持主线程运行
+        Thread.sleep(30000); // 总共运行30秒，测试所有URL
     }
 }
